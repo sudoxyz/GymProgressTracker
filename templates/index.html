@@ -1,0 +1,133 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Workout Tracker</title>
+    <link href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" rel="stylesheet">
+</head>
+<body>
+
+<div class="container my-5">
+    <h1 class="text-center">Workout Progress Tracker</h1>
+
+    <div class="card mt-5">
+        <div class="card-header">
+            <h4>Add Weight and Height</h4>
+        </div>
+        <div class="card-body">
+            <form action="/add_body" method="POST">
+                <div class="form-group">
+                    <label for="height">Height (cm):</label>
+                    <input type="number" class="form-control" id="height" name="height">
+                </div>
+                <div class="form-group">
+                    <label for="weight">Weight (kg):</label>
+                    <input type="number" class="form-control" id="weight" name="weight" step="0.01">
+                </div>
+                <div class="form-group row justify-content-center">
+                    <button type="submit" class="btn btn-primary col-md-5 mt-2 ml-2 mr-2">Add Log</button>
+                    <a href="/graph" class="btn btn-info col-md-5 ml-2 mt-2 mr-2">View Weight & Height Graph</a>
+                </div>
+
+            </form>
+        </div>
+    </div>
+    <hr>
+
+    <div class="card mt-5">
+        <div class="card-header">
+            <h4>Add Workout Log</h4>
+        </div>
+        <div class="card-body">
+            <form action="/add_workout" method="POST">
+                <div class="form-group">
+                    <label for="exercise">Exercise:</label>
+                    <select class="form-control" id="exercise" name="exercise_id" required>
+                        <option value="">Select Exercise</option>
+                        {% for exercise in exercises %}
+                            <option value="{{ exercise.id }}">{{ exercise.name }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label for="weight">Weight (kg):</label>
+                    <input type="number" class="form-control" id="weight" name="weight" step="0.01" required>
+                </div>
+                <div class="form-group">
+                    <label for="reps">Reps:</label>
+                    <input type="number" class="form-control" id="reps" name="reps" required>
+                </div>
+                <div class="form-group row justify-content-center">
+                    <button type="submit" class="btn btn-success col-md-10 ml-2 mr-2">Add Workout</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+
+
+
+    <div class="card mt-5">
+        <div class="card-header">
+            <h4>Add New Exercise</h4>
+        </div>
+        <div class="card-body">
+            <form action="/add_exercise" method="POST">
+                <div class="form-group">
+                    <label for="exercise_name">Exercise Name:</label>
+                    <input type="text" class="form-control" id="exercise_name" name="exercise_name" required>
+                </div>
+                <div class="form-group row justify-content-center">
+                    <button type="submit" class="btn btn-success col-md-10 ml-2 mr-2">Add Exercise</button>
+                </div>
+                
+            </form>
+        </div>
+    </div>
+
+    {% if body %}
+    <h2 class="mt-5">Weight & Height</h2>
+    <ul class="list-group">
+        {% for stats in body %}
+            <li class="list-group-item">
+                <strong>{{ stats.date }}</strong>: Height: {{ stats.height }} cm, Weight: {{ stats.weight|round(2) }} kg
+                <a href="/delete_body/{{ stats.id }}" class="btn btn-danger btn-sm float-right ml-2">Delete</a>
+            </li>
+        {% endfor %}
+    </ul>
+    {% endif %}
+
+    {% if workouts %}
+    <h2 class="mt-5">Workouts</h2>
+    <ul class="list-group">
+        {% for workout in workouts %}
+            <li class="list-group-item">
+                <strong>{{ workout.date }}</strong>: {{ exercises[workout.exercise_id - 1].name }} - {{ workout.weight|round(2) }} kg x {{ workout.reps }}
+                <a href="/delete_workout/{{ workout.id }}" class="btn btn-danger btn-sm float-right ml-2">Delete</a>
+            </li>
+        {% endfor %}
+    </ul>
+    {% endif %}
+    <hr>
+
+    {% if exercises %}
+    <h2 class="mt-5">Exercise Progression</h2>
+    <ul class="list-group">
+        {% for exercise in exercises | sort(attribute='name')%}
+            <li class="list-group-item">
+                <a href="/exercise_graph/{{ exercise.id }}" class="btn btn-link">
+                    {{ exercise.name }}
+                </a>
+            </li>
+        {% endfor %}
+    </ul>
+    {% endif %}
+</div>
+
+<script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.9.3/dist/umd/popper.min.js"></script>
+<script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+
+</body>
+</html>
