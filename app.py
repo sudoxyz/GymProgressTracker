@@ -276,4 +276,4 @@ def logout():
 if __name__ == "__main__":
     init_db()  
     login_manager.init_app(app)
-    app.run(debug=True)
+    app.run(debug=False, host='0.0.0.0', port=5000)
