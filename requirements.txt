@@ -2,3 +2,4 @@ flask
 matplotlib
 flask-login
 dotenv
+waitress

@@ -7,6 +7,7 @@ from io import BytesIO
 import base64
 import dotenv
 import os
+from waitress import serve
 
 dotenv.load_dotenv()
 
@@ -14,6 +15,7 @@ app = Flask(__name__)
 app.secret_key = os.getenv("secret_key")
 login_manager = LoginManager()
 login_manager.login_view = 'login'
+login_manager.init_app(app)
 
 class User(UserMixin):
     def __init__(self, id, username, password):
@@ -275,5 +277,4 @@ def logout():
 
 if __name__ == "__main__":
     init_db()  
-    login_manager.init_app(app)
-    app.run(debug=False, host='0.0.0.0', port=5000)
+    serve(app, host='0.0.0.0', port=5000)
