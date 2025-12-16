@@ -130,6 +130,18 @@ def delete_body(body_id):
     conn.close()
     return redirect(url_for('index'))
 
+@app.route('/edit_body/<int:body_id>', methods=['POST'])
+@login_required
+def edit_body(body_id):
+    conn = get_db_connection()
+    height = request.form['height']
+    weight = request.form['weight']
+    conn.execute('UPDATE body SET height = ?, weight = ? WHERE id = ? AND user_id = ?', 
+                 (height, weight, body_id, current_user.id))
+    conn.commit()
+    conn.close()
+    return redirect(url_for('index'))
+
 @app.route('/add_exercise', methods=['POST'])
 @login_required
 def add_exercise():
@@ -184,6 +196,18 @@ def add_workout():
     conn.commit()
     conn.close()
 
+    return redirect(url_for('index'))
+
+@app.route('/edit_workout/<int:workout_id>', methods=['POST'])
+@login_required
+def edit_workout(workout_id):
+    conn = get_db_connection()
+    weight = request.form['weight']
+    reps = request.form['reps']
+    conn.execute('UPDATE workouts SET weight = ?, reps = ? WHERE id = ? AND user_id = ?', 
+                 (weight, reps, workout_id, current_user.id))
+    conn.commit()
+    conn.close()
     return redirect(url_for('index'))
 
 @app.route('/delete_workout/<int:workout_id>')

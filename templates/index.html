@@ -92,6 +92,36 @@
             <li class="list-group-item">
                 <strong>{{ stats.date }}</strong>: Height: {{ stats.height }} cm, Weight: {{ stats.weight|round(2) }} kg
                 <a href="/delete_body/{{ stats.id }}" class="btn btn-danger btn-sm float-right ml-2">Delete</a>
+                <button type="button" class="btn btn-warning btn-sm float-right ml-2" data-toggle="modal" data-target="#editBodyModal{{ stats.id }}">Edit</button>
+
+                <div class="modal fade" id="editBodyModal{{ stats.id }}" tabindex="-1" role="dialog" aria-labelledby="editBodyModalLabel{{ stats.id }}" aria-hidden="true">
+                    <div class="modal-dialog" role="document">
+                        <div class="modal-content">
+                            <div class="modal-header">
+                                <h5 class="modal-title" id="editBodyModalLabel{{ stats.id }}">Edit Body Stats</h5>
+                                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                                    <span aria-hidden="true">&times;</span>
+                                </button>
+                            </div>
+                            <form action="/edit_body/{{ stats.id }}" method="POST">
+                                <div class="modal-body">
+                                    <div class="form-group">
+                                        <label for="height">Height (cm)</label>
+                                        <input type="number" class="form-control" name="height" value="{{ stats.height }}" required>
+                                    </div>
+                                    <div class="form-group">
+                                        <label for="weight">Weight (kg)</label>
+                                        <input type="number" class="form-control" name="weight" value="{{ stats.weight }}" step="0.01" required>
+                                    </div>
+                                </div>
+                                <div class="modal-footer">
+                                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                                    <button type="submit" class="btn btn-primary">Save changes</button>
+                                </div>
+                            </form>
+                        </div>
+                    </div>
+                </div>
             </li>
         {% endfor %}
     </ul>
@@ -104,6 +134,36 @@
             <li class="list-group-item">
                 <strong>{{ workout.date }}</strong>: {{ exercises[workout.exercise_id - 1].name }} - {{ workout.weight|round(2) }} kg x {{ workout.reps }}
                 <a href="/delete_workout/{{ workout.id }}" class="btn btn-danger btn-sm float-right ml-2">Delete</a>
+                <button type="button" class="btn btn-warning btn-sm float-right ml-2" data-toggle="modal" data-target="#editWorkoutModal{{ workout.id }}">Edit</button>
+
+                <div class="modal fade" id="editWorkoutModal{{ workout.id }}" tabindex="-1" role="dialog" aria-labelledby="editWorkoutModalLabel{{ workout.id }}" aria-hidden="true">
+                    <div class="modal-dialog" role="document">
+                        <div class="modal-content">
+                            <div class="modal-header">
+                                <h5 class="modal-title" id="editWorkoutModalLabel{{ workout.id }}">Edit Workout</h5>
+                                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                                    <span aria-hidden="true">&times;</span>
+                                </button>
+                            </div>
+                            <form action="/edit_workout/{{ workout.id }}" method="POST">
+                                <div class="modal-body">
+                                    <div class="form-group">
+                                        <label for="weight">Weight (kg)</label>
+                                        <input type="number" class="form-control" name="weight" value="{{ workout.weight }}" step="0.01" required>
+                                    </div>
+                                    <div class="form-group">
+                                        <label for="reps">Reps</label>
+                                        <input type="number" class="form-control" name="reps" value="{{ workout.reps }}" required>
+                                    </div>
+                                </div>
+                                <div class="modal-footer">
+                                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                                    <button type="submit" class="btn btn-primary">Save changes</button>
+                                </div>
+                            </form>
+                        </div>
+                    </div>
+                </div>
             </li>
         {% endfor %}
     </ul>
