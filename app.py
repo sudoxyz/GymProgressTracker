@@ -147,6 +147,30 @@ def add_exercise():
 
     return redirect(url_for('index'))
 
+@app.route('/delete_exercise/<int:exercise_id>')
+@login_required
+def delete_exercise(exercise_id):
+    conn = get_db_connection()
+    
+    conn.execute('DELETE FROM exercises WHERE id = ? AND user_id = ?', (exercise_id, current_user.id))
+    conn.execute('DELETE FROM workouts WHERE exercise_id = ? AND user_id = ?', (exercise_id, current_user.id))
+
+    conn.commit()
+    conn.close()
+    return redirect(url_for('index'))
+
+@app.route('/edit_exercise/<int:exercise_id>', methods=['POST'])
+@login_required
+def edit_exercise(exercise_id):
+    new_name = request.form['new_name']
+
+    conn = get_db_connection()
+    conn.execute('UPDATE exercises SET name = ? WHERE id = ? AND user_id = ?', (new_name, exercise_id, current_user.id))
+
+    conn.commit()
+    conn.close()
+    return redirect(url_for('index'))
+
 @app.route('/add_workout', methods=['POST'])
 @login_required
 def add_workout():

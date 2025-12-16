@@ -117,6 +117,35 @@
                 <a href="/exercise_graph/{{ exercise.id }}" class="btn btn-link">
                     {{ exercise.name }}
                 </a>
+                <a href="/delete_exercise/{{ exercise.id }}" class="btn btn-danger btn-sm float-right ml-2">Delete</a>
+                <button type="button" class="btn btn-warning btn-sm float-right" data-toggle="modal" data-target="#editExerciseModal{{ exercise.id }}">
+                    Edit
+                </button>
+
+                <div class="modal fade" id="editExerciseModal{{ exercise.id }}" tabindex="-1" role="dialog" aria-labelledby="editExerciseModalLabel{{ exercise.id }}" aria-hidden="true">
+                    <div class="modal-dialog" role="document">
+                        <div class="modal-content">
+                            <div class="modal-header">
+                                <h5 class="modal-title" id="editExerciseModalLabel{{ exercise.id }}">Edit Exercise</h5>
+                                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                                    <span aria-hidden="true">&times;</span>
+                                </button>
+                            </div>
+                            <form action="/edit_exercise/{{ exercise.id }}" method="POST">
+                                <div class="modal-body">
+                                    <div class="form-group">
+                                        <label for="new_name">New Name</label>
+                                        <input type="text" class="form-control" name="new_name" value="{{ exercise.name }}" required>
+                                    </div>
+                                </div>
+                                <div class="modal-footer">
+                                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                                    <button type="submit" class="btn btn-primary">Save changes</button>
+                                </div>
+                            </form>
+                        </div>
+                    </div>
+                </div>
             </li>
         {% endfor %}
     </ul>
