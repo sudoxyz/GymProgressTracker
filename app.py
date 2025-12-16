@@ -317,6 +317,21 @@ def register():
             return render_template('register.html', error="Username already taken")
     return render_template('register.html')
 
+@app.route('/change_password', methods=['POST'])
+@login_required
+def change_password():
+    old_password = request.form['old_password']
+    new_password = request.form['new_password']
+    
+    if check_password_hash(current_user.password, old_password):
+        conn = get_db_connection()
+        hashed_password = generate_password_hash(new_password)
+        conn.execute('UPDATE accounts SET password = ? WHERE id = ?', (hashed_password, current_user.id))
+        conn.commit()
+        conn.close()
+    
+    return redirect(url_for('index'))
+
 @app.route('/logout')
 @login_required
 def logout():
