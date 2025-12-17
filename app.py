@@ -286,20 +286,34 @@ def graph():
     weights = [stats['weight'] for stats in body]
     heights = [stats['height'] for stats in body]
 
-    fig, ax = plt.subplots()
-    ax.plot(dates, weights, label="Weight (kg)", color='b')
-    ax.plot(dates, heights, label="Height (cm)", color='g')
-    ax.set_title("Weight and Height Progression")
-    ax.set_xlabel("Date")
-    ax.set_ylabel("Weight (kg) / Height (cm)")
-    ax.legend()
+    fig_weight, ax_weight = plt.subplots()
+    ax_weight.plot(dates, weights, label="Weight (kg)", color='b')
+    ax_weight.set_title("Weight Progression")
+    ax_weight.set_xlabel("Date")
+    ax_weight.invert_xaxis()
+    ax_weight.set_ylabel("Weight (kg)")
+    ax_weight.legend()
 
-    img = BytesIO()
-    fig.savefig(img, format='png')
-    img.seek(0)
-    img_b64 = base64.b64encode(img.getvalue()).decode('utf-8')
+    img_weight = BytesIO()
+    fig_weight.savefig(img_weight, format='png')
+    img_weight.seek(0)
+    img_weight_b64 = base64.b64encode(img_weight.getvalue()).decode('utf-8')
 
-    return render_template('graph.html', img_b64=img_b64)
+
+    fig_height, ax_height = plt.subplots()
+    ax_height.plot(dates, heights, label="Height (cm)", color='g')
+    ax_height.set_title("Height Progression")
+    ax_height.set_xlabel("Date")
+    ax_height.invert_xaxis()
+    ax_height.set_ylabel("Height (cm)")
+    ax_height.legend()
+
+    img_height = BytesIO()
+    fig_height.savefig(img_weight, format='png')
+    img_height.seek(0)
+    img_height_b64 = base64.b64encode(img_weight.getvalue()).decode('utf-8')
+
+    return render_template('graph.html', img_weight_b64=img_weight_b64, img_height_b64=img_height_b64)
 
 @app.route('/login', methods=['GET', 'POST'])
 def login():
