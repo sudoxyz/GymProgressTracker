@@ -132,7 +132,7 @@
     <ul class="list-group" style="max-height: 500px; overflow-y: auto;">
         {% for workout in workouts %}
             <li class="list-group-item">
-                <strong>{{ workout.date }}</strong>: {{ exercises[workout.exercise_id - 1].name }} - {{ workout.weight|round(2) }} kg x {{ workout.reps }}
+                <strong>{{ workout.date }}</strong>: {{ exercise_map[workout.exercise_id] }} - {{ workout.weight|round(2) }} kg x {{ workout.reps }}
                 <a href="/delete_workout/{{ workout.id }}" class="btn btn-danger btn-sm float-right ml-2">Delete</a>
                 <button type="button" class="btn btn-warning btn-sm float-right ml-2" data-toggle="modal" data-target="#editWorkoutModal{{ workout.id }}">Edit</button>
 

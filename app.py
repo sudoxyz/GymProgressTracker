@@ -39,6 +39,7 @@ def load_user(user_id):
 def get_db_connection():
     conn = sqlite3.connect('database.db')
     conn.row_factory = sqlite3.Row  
+    conn.execute("PRAGMA foreign_keys = ON")
     return conn
 
 def init_db():
@@ -90,9 +91,10 @@ def index():
     body = conn.execute('SELECT * FROM body WHERE user_id = ? ORDER BY date DESC', (current_user.id,)).fetchall()
     workouts = conn.execute('SELECT * FROM workouts WHERE user_id = ? ORDER BY date DESC', (current_user.id,)).fetchall()
     exercises = conn.execute('SELECT * FROM exercises WHERE user_id = ?', (current_user.id,)).fetchall()
+    exercise_map = {exercise['id']: exercise['name'] for exercise in exercises}
 
     conn.close()
-    return render_template('index.html', body=body, workouts=workouts, exercises=exercises)
+    return render_template('index.html', body=body, workouts=workouts, exercises=exercises, exercise_map=exercise_map)
 
 @app.route('/add_body', methods=['POST'])
 @login_required
@@ -340,4 +342,5 @@ def logout():
 
 if __name__ == "__main__":
     init_db()  
-    serve(app, host='0.0.0.0', port=5000)
+    app.run(debug=True)
+    # serve(app, host='0.0.0.0', port=5000)
