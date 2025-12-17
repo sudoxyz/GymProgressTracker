@@ -243,20 +243,35 @@ def exercise_graph(exercise_id):
     weights = [workout['weight'] for workout in workouts]
     reps = [workout['reps'] for workout in workouts]
 
-    fig, ax = plt.subplots()
-    ax.plot(dates, weights, label="Weight Used (kg)", color='g')
-    ax.plot(dates, reps, label="Reps", color='b')
-    ax.set_title(f"Progression for {exercise['name']}")
-    ax.set_xlabel("Date")
-    ax.set_ylabel("Weight / Reps")
-    ax.legend()
+    fig_weights, ax_weights = plt.subplots()
+    plt.subplots()
+    ax_weights.plot(dates, weights, label="Weight Used (kg)", color='g', marker='o', markersize=3)
+    ax_weights.set_title(f"Progression in weight used for {exercise['name']}")
+    ax_weights.set_xlabel("Date")
+    ax_weights.invert_xaxis()
+    ax_weights.set_ylabel("Weight")
+    ax_weights.legend()
 
-    img = BytesIO()
-    fig.savefig(img, format='png')
-    img.seek(0)
-    img_b64 = base64.b64encode(img.getvalue()).decode('utf-8')
+    img_weights = BytesIO()
+    fig_weights.savefig(img_weights, format='png')
+    img_weights.seek(0)
+    img_weights_b64 = base64.b64encode(img_weights.getvalue()).decode('utf-8')
 
-    return render_template('exercise_graph.html', img_b64=img_b64, exercise=exercise)
+    fig_reps, ax_reps = plt.subplots()
+    plt.subplots()
+    ax_reps.plot(dates, reps, label="Reps", color='b', marker='o', markersize=3)
+    ax_reps.set_title(f"Progression in reps for {exercise['name']}")
+    ax_reps.set_xlabel("Date")
+    ax_reps.invert_xaxis()
+    ax_reps.set_ylabel("Reps")
+    ax_reps.legend()
+
+    img_reps = BytesIO()
+    fig_reps.savefig(img_reps, format='png')
+    img_reps.seek(0)
+    img_reps_b64 = base64.b64encode(img_reps.getvalue()).decode('utf-8')
+
+    return render_template('exercise_graph.html', img_weights_b64=img_weights_b64, img_reps_b64=img_reps_b64, exercise=exercise)
 
 @app.route('/graph')
 @login_required
