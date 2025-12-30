@@ -7,6 +7,7 @@ from io import BytesIO
 import base64
 import dotenv
 import os
+import datetime
 from waitress import serve
 
 dotenv.load_dotenv()
@@ -16,25 +17,6 @@ app.secret_key = os.getenv("secret_key")
 login_manager = LoginManager()
 login_manager.login_view = 'login'
 login_manager.init_app(app)
-
-class User(UserMixin):
-    def __init__(self, id, username, password):
-        self.id = id
-        self.username = username
-        self.password = password
-
-    @staticmethod
-    def get(user_id):
-        conn = get_db_connection()
-        user = conn.execute('SELECT * FROM accounts WHERE id = ?', (user_id,)).fetchone()
-        conn.close()
-        if not user:
-            return None
-        return User(user['id'], user['username'], user['password'])
-
-@login_manager.user_loader
-def load_user(user_id):
-    return User.get(user_id)
 
 def get_db_connection():
     conn = sqlite3.connect('database.db')
@@ -83,17 +65,46 @@ def init_db():
     conn.commit()
     conn.close()
 
-@app.route('/')
-@login_required
-def index():
+class User(UserMixin):
+    def __init__(self, id, username, password):
+        self.id = id
+        self.username = username
+        self.password = password
+
+    @staticmethod
+    def get(user_id):
+        conn = get_db_connection()
+        user = conn.execute('SELECT * FROM accounts WHERE id = ?', (user_id,)).fetchone()
+        conn.close()
+        if not user:
+            return None
+        return User(user['id'], user['username'], user['password'])
+
+@login_manager.user_loader
+def load_user(user_id):
+    return User.get(user_id)
+
+def init_vars():
     conn = get_db_connection()
-    
+
     body = conn.execute('SELECT * FROM body WHERE user_id = ? ORDER BY date DESC', (current_user.id,)).fetchall()
     workouts = conn.execute('SELECT * FROM workouts WHERE user_id = ? ORDER BY date DESC', (current_user.id,)).fetchall()
     exercises = conn.execute('SELECT * FROM exercises WHERE user_id = ?', (current_user.id,)).fetchall()
     exercise_map = {exercise['id']: exercise['name'] for exercise in exercises}
 
     conn.close()
+
+    return body, workouts, exercises, exercise_map
+
+@app.route('/')
+@login_required
+def index():
+    body, workouts, exercises, exercise_map = init_vars()
+    error = request.args.get('error')
+    
+    if error:
+        return render_template('index.html', body=body, workouts=workouts, exercises=exercises, exercise_map=exercise_map, error=error)
+    
     return render_template('index.html', body=body, workouts=workouts, exercises=exercises, exercise_map=exercise_map)
 
 @app.route('/add_body', methods=['POST'])
@@ -102,10 +113,16 @@ def add_body():
     conn = get_db_connection()
 
     height = request.form['height']
-    weight = float(request.form['weight']) 
+    weight = request.form['weight']
+
+    if weight != '':
+        weight = float(weight)
 
     oldHeight = conn.execute('SELECT height FROM body WHERE user_id = ? ORDER BY date DESC LIMIT 1', (current_user.id,)).fetchone()
     oldWeight = conn.execute('SELECT weight FROM body WHERE user_id = ? ORDER BY date DESC LIMIT 1', (current_user.id,)).fetchone()
+
+    if not height and not weight:
+        return redirect(url_for('index', error="Height and weight cannot be empty. Please provide at least one value."))
 
     if oldHeight and oldWeight:
         print(oldHeight["height"], oldWeight["weight"])
@@ -127,6 +144,10 @@ def add_body():
 @login_required
 def delete_body(body_id):
     conn = get_db_connection()
+
+    if not body_id:
+        return redirect(url_for('index', error="Invalid body ID."))
+
     conn.execute('DELETE FROM body WHERE id = ? AND user_id = ?', (body_id, current_user.id))
     conn.commit()
     conn.close()
@@ -138,6 +159,10 @@ def edit_body(body_id):
     conn = get_db_connection()
     height = request.form['height']
     weight = request.form['weight']
+
+    if not height and not weight:
+        return redirect(url_for('index', error="Height and weight cannot be empty."))
+
     conn.execute('UPDATE body SET height = ?, weight = ? WHERE id = ? AND user_id = ?', 
                  (height, weight, body_id, current_user.id))
     conn.commit()
@@ -150,6 +175,9 @@ def add_exercise():
     exercise_name = request.form['exercise_name']
     
     conn = get_db_connection()
+
+    if not exercise_name:
+        return redirect(url_for('index', error="Exercise name cannot be empty."))
     
     try:
         conn.execute('INSERT INTO exercises (name, user_id) VALUES (?, ?)', (exercise_name, current_user.id))
@@ -165,6 +193,9 @@ def add_exercise():
 @login_required
 def delete_exercise(exercise_id):
     conn = get_db_connection()
+
+    if not exercise_id:
+        return redirect(url_for('index', error="Invalid exercise ID."))
     
     conn.execute('DELETE FROM exercises WHERE id = ? AND user_id = ?', (exercise_id, current_user.id))
     conn.execute('DELETE FROM workouts WHERE exercise_id = ? AND user_id = ?', (exercise_id, current_user.id))
@@ -178,6 +209,9 @@ def delete_exercise(exercise_id):
 def edit_exercise(exercise_id):
     new_name = request.form['new_name']
 
+    if not new_name:
+        return redirect(url_for('index', error="Exercise name cannot be empty."))
+
     conn = get_db_connection()
     conn.execute('UPDATE exercises SET name = ? WHERE id = ? AND user_id = ?', (new_name, exercise_id, current_user.id))
 
@@ -189,7 +223,18 @@ def edit_exercise(exercise_id):
 @login_required
 def add_workout():
     exercise_id = request.form['exercise_id']
-    weight = float(request.form['weight'])
+    weight_kg = request.form.get('weight_kg', type=float)
+    weight_lb = request.form.get('weight_lb', type=float)
+
+    if not weight_kg and not weight_lb:
+        return redirect(url_for('index', error="Please enter weight in either kg or lbs."))
+
+    if weight_lb:
+        weight = weight_lb * 0.453592
+
+    elif weight_kg:
+        weight = weight_kg
+
     reps = request.form['reps']
 
     conn = get_db_connection()
@@ -206,6 +251,10 @@ def edit_workout(workout_id):
     conn = get_db_connection()
     weight = request.form['weight']
     reps = request.form['reps']
+
+    if not weight and not reps:
+        return redirect(url_for('index', error="Weight and reps cannot be empty."))
+
     conn.execute('UPDATE workouts SET weight = ?, reps = ? WHERE id = ? AND user_id = ?', 
                  (weight, reps, workout_id, current_user.id))
     conn.commit()
@@ -216,6 +265,10 @@ def edit_workout(workout_id):
 @login_required
 def delete_workout(workout_id):
     conn = get_db_connection()
+
+    if not workout_id:
+        return redirect(url_for('index', error="Invalid workout ID."))
+
     conn.execute('DELETE FROM workouts WHERE id = ? AND user_id = ?', (workout_id, current_user.id))
     conn.commit()
     conn.close()
@@ -225,6 +278,9 @@ def delete_workout(workout_id):
 @login_required
 def exercise_graph(exercise_id):
     conn = get_db_connection()
+
+    if not exercise_id:
+        return redirect(url_for('index', error="Invalid exercise ID."))
 
     exercise = conn.execute('SELECT * FROM exercises WHERE id = ? AND user_id = ?', (exercise_id, current_user.id)).fetchone()
 
@@ -360,6 +416,9 @@ def change_password():
         conn.execute('UPDATE accounts SET password = ? WHERE id = ?', (hashed_password, current_user.id))
         conn.commit()
         conn.close()
+    
+    else:
+        return redirect(url_for('index', error="Old password is incorrect."))
     
     return redirect(url_for('index'))
 

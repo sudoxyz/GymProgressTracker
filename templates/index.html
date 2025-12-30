@@ -10,6 +10,12 @@
 
 <div class="container my-5">
     <h1 class="text-center">Workout Progress Tracker</h1>
+    <br>
+    {% if error %}
+        <div class="alert alert-danger" role="alert">
+            {{ error }}
+        </div>
+    {% endif %}
 
     <div class="card mt-5">
         <div class="card-header">
@@ -22,8 +28,8 @@
                     <input type="number" class="form-control" id="height" name="height">
                 </div>
                 <div class="form-group">
-                    <label for="weight">Weight (kg):</label>
-                    <input type="number" class="form-control" id="weight" name="weight" step="0.01">
+                    <label for="weight_kg">Weight (kg):</label>
+                    <input type="number" class="form-control" id="weight_kg" name="weight" step="0.01" >
                 </div>
                 <div class="form-group row justify-content-center">
                     <button type="submit" class="btn btn-success col-md-5 mt-2 ml-2 mr-2">Add Log</button>
@@ -51,7 +57,11 @@
                 </div>
                 <div class="form-group">
                     <label for="weight">Weight (kg):</label>
-                    <input type="number" class="form-control" id="weight" name="weight" step="0.01" required>
+                    <input type="number" class="form-control" id="weight_kg" name="weight_kg" step="0.01">
+                </div>
+                <div>
+                    <label for="weight">Weight (lb)</label>
+                    <input type="number" class="form-control" id="weight_lb" name="weight_lb" step="0.01">
                 </div>
                 <div class="form-group">
                     <label for="reps">Reps:</label>
