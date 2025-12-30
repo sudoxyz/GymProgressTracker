@@ -1,13 +1,15 @@
 import sqlite3
-from flask import Flask, render_template, request, redirect, url_for
-from flask_login import LoginManager, UserMixin, login_user, login_required, logout_user, current_user
-from werkzeug.security import generate_password_hash, check_password_hash
+import plotly.io as pio
 import datetime
 import dotenv
 import os
+import sys
+
 from waitress import serve
 from plotly.graph_objects import Scatter, Figure
-import plotly.io as pio
+from flask import Flask, render_template, request, redirect, url_for, flash
+from flask_login import LoginManager, UserMixin, login_user, login_required, logout_user, current_user
+from werkzeug.security import generate_password_hash, check_password_hash
 
 dotenv.load_dotenv()
 
@@ -99,11 +101,6 @@ def init_vars():
 @login_required
 def index():
     body, workouts, exercises, exercise_map = init_vars()
-    error = request.args.get('error')
-    
-    if error:
-        return render_template('index.html', body=body, workouts=workouts, exercises=exercises, exercise_map=exercise_map, error=error)
-    
     return render_template('index.html', body=body, workouts=workouts, exercises=exercises, exercise_map=exercise_map)
 
 @app.route('/add_body', methods=['POST'])
@@ -121,8 +118,9 @@ def add_body():
     oldWeight = conn.execute('SELECT weight FROM body WHERE user_id = ? ORDER BY date DESC LIMIT 1', (current_user.id,)).fetchone()
 
     if not height and not weight:
-        return redirect(url_for('index', error="Height and weight cannot be empty. Please provide at least one value."))
-
+        flash("Height and weight cannot be empty.", "error")
+        return redirect(url_for('index'))
+    
     if oldHeight and oldWeight:
         print(oldHeight["height"], oldWeight["weight"])
 
@@ -145,7 +143,8 @@ def delete_body(body_id):
     conn = get_db_connection()
 
     if not body_id:
-        return redirect(url_for('index', error="Invalid body ID."))
+        flash("Invalid body ID.", "error")
+        return redirect(url_for('index'))
 
     conn.execute('DELETE FROM body WHERE id = ? AND user_id = ?', (body_id, current_user.id))
     conn.commit()
@@ -160,8 +159,9 @@ def edit_body(body_id):
     weight = request.form['weight']
 
     if not height and not weight:
-        return redirect(url_for('index', error="Height and weight cannot be empty."))
-
+        flash("Height and weight cannot be empty.", "error")
+        return redirect(url_for('index'))
+    
     conn.execute('UPDATE body SET height = ?, weight = ? WHERE id = ? AND user_id = ?', 
                  (height, weight, body_id, current_user.id))
     conn.commit()
@@ -176,13 +176,15 @@ def add_exercise():
     conn = get_db_connection()
 
     if not exercise_name:
-        return redirect(url_for('index', error="Exercise name cannot be empty."))
+        flash("Exercise name cannot be empty.", "error")
+        return redirect(url_for('index'))
     
     try:
         conn.execute('INSERT INTO exercises (name, user_id) VALUES (?, ?)', (exercise_name, current_user.id))
         conn.commit()
     except sqlite3.IntegrityError:
-        return redirect(url_for('index', error="Exercise already exists!"))
+        flash("Exercise already exists.", "error")
+        return redirect(url_for('index'))
     
     conn.close()
 
@@ -194,8 +196,9 @@ def delete_exercise(exercise_id):
     conn = get_db_connection()
 
     if not exercise_id:
-        return redirect(url_for('index', error="Invalid exercise ID."))
-    
+        flash("Invalid exercise ID.", "error")
+        return redirect(url_for('index'))
+        
     conn.execute('DELETE FROM exercises WHERE id = ? AND user_id = ?', (exercise_id, current_user.id))
     conn.execute('DELETE FROM workouts WHERE exercise_id = ? AND user_id = ?', (exercise_id, current_user.id))
 
@@ -209,7 +212,8 @@ def edit_exercise(exercise_id):
     new_name = request.form['new_name']
 
     if not new_name:
-        return redirect(url_for('index', error="Exercise name cannot be empty."))
+        flash("Exercise name cannot be empty.", "error")
+        return redirect(url_for('index'))
 
     conn = get_db_connection()
     conn.execute('UPDATE exercises SET name = ? WHERE id = ? AND user_id = ?', (new_name, exercise_id, current_user.id))
@@ -226,7 +230,8 @@ def add_workout():
     weight_lb = request.form.get('weight_lb', type=float)
 
     if not weight_kg and not weight_lb:
-        return redirect(url_for('index', error="Please enter weight in either kg or lbs."))
+        flash("Please enter weight in either kg or lbs.", "error")
+        return redirect(url_for('index'))
 
     if weight_lb:
         weight = weight_lb * 0.453592
@@ -252,7 +257,8 @@ def edit_workout(workout_id):
     reps = request.form['reps']
 
     if not weight and not reps:
-        return redirect(url_for('index', error="Weight and reps cannot be empty."))
+        flash("Weight and reps cannot be empty.", "error")
+        return redirect(url_for('index'))
 
     conn.execute('UPDATE workouts SET weight = ?, reps = ? WHERE id = ? AND user_id = ?', 
                  (weight, reps, workout_id, current_user.id))
@@ -266,7 +272,8 @@ def delete_workout(workout_id):
     conn = get_db_connection()
 
     if not workout_id:
-        return redirect(url_for('index', error="Invalid workout ID."))
+        flash("Invalid workout ID.", "error")
+        return redirect(url_for('index'))
 
     conn.execute('DELETE FROM workouts WHERE id = ? AND user_id = ?', (workout_id, current_user.id))
     conn.commit()
@@ -279,12 +286,14 @@ def exercise_graph(exercise_id):
     conn = get_db_connection()
 
     if not exercise_id:
-        return redirect(url_for('index', error='Invalid exercise ID'))
+        flash("Invalid exercise ID.", "error")
+        return redirect(url_for('index'))
 
     exercise = conn.execute('SELECT * FROM exercises WHERE id = ? AND user_id = ?', (exercise_id, current_user.id)).fetchone()
 
     if not exercise:
-        return redirect(url_for('index', error='Exercise not found'))
+        flash("Exercise not found.", "error")
+        return redirect(url_for('index'))
 
     workouts = conn.execute('''
         SELECT * FROM workouts WHERE exercise_id = ? AND user_id = ?
@@ -347,7 +356,8 @@ def login():
             login_user(user_obj)
             return redirect(url_for('index'))
         else:
-            return render_template('login.html', error="Invalid username or password")
+            flash("Invalid username or password", "error")
+            return render_template('login.html')
     return render_template('login.html')
 
 @app.route('/register', methods=['GET', 'POST'])
@@ -361,10 +371,12 @@ def register():
             conn.execute('INSERT INTO accounts (username, password) VALUES (?, ?)', (username, hashed_password))
             conn.commit()
             conn.close()
+            flash("Registration successful. Please log in.", "success")
             return redirect(url_for('login'))
         except sqlite3.IntegrityError:
             conn.close()
-            return render_template('register.html', error="Username already taken")
+            flash("Username already taken.", "error")
+            return render_template('register.html')
     return render_template('register.html')
 
 @app.route('/change_password', methods=['POST'])
@@ -381,8 +393,9 @@ def change_password():
         conn.close()
     
     else:
-        return redirect(url_for('index', error="Old password is incorrect."))
-    
+        flash("Old password is incorrect.", "error")
+        return redirect(url_for('index'))
+        
     return redirect(url_for('index'))
 
 @app.route('/logout')
@@ -393,5 +406,8 @@ def logout():
 
 if __name__ == "__main__":
     init_db()  
-    app.run(debug=True, host='0.0.0.0', port=5000)
-    # serve(app, host='0.0.0.0', port=5000)
+    if sys.argv.__contains__('debug'):
+        app.run(debug=True, host='0.0.0.0', port=5000)
+    else:
+        serve(app, host='0.0.0.0', port=5000)
+

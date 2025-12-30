@@ -11,11 +11,19 @@
 <div class="container my-5">
     <h1 class="text-center">Workout Progress Tracker</h1>
     <br>
-    {% if error %}
-        <div class="alert alert-danger" role="alert">
-            {{ error }}
+    {% with messages = get_flashed_messages(with_categories=true) %}
+      {% if messages %}
+        <div>
+          {% for category, message in messages %}
+            {% if category == 'error' %}
+              <div class="alert alert-danger" role="alert">{{ message }}</div>
+            {% elif category == 'success' %}
+              <div class="alert alert-success" role="alert">{{ message }}</div>
+            {% endif %}
+          {% endfor %}
         </div>
-    {% endif %}
+      {% endif %}
+    {% endwith %}
 
     <div class="card mt-5">
         <div class="card-header">

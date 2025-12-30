@@ -13,11 +13,19 @@
 
     <div class="row justify-content-center mt-4">
         <div class="col-md-6">
-            {% if error %}
-                <div class="alert alert-danger" role="alert">
-                    {{ error }}
+            {% with messages = get_flashed_messages(with_categories=true) %}
+              {% if messages %}
+                <div>
+                  {% for category, message in messages %}
+                    {% if category == 'error' %}
+                      <div class="alert alert-danger" role="alert">{{ message }}</div>
+                    {% elif category == 'success' %}
+                      <div class="alert alert-success" role="alert">{{ message }}</div>
+                    {% endif %}
+                  {% endfor %}
                 </div>
-            {% endif %}
+              {% endif %}
+            {% endwith %}
             <form method="POST">
                 <div class="form-group">
                     <label for="username">Username</label>
