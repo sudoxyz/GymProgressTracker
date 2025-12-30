@@ -299,11 +299,11 @@ def exercise_graph(exercise_id):
 
     fig_weights = Figure()
     fig_weights.add_trace(Scatter(x=dates, y=weights, mode='lines+markers', name='', hoverinfo='x+y', hovertemplate='%{x}<br>%{y} kg'))
-    fig_weights.update_layout(title={'text': f'Progression in weight used for {exercise['name']}', 'x': 0.5}, xaxis_title='Date & Time', yaxis_title='Weight (kg)')
+    fig_weights.update_layout(title={'text': f'Progression in weight used for {exercise["name"]}', 'x': 0.5}, xaxis_title='Date & Time', yaxis_title='Weight (kg)')
 
     fig_reps = Figure()
     fig_reps.add_trace(Scatter(x=dates, y=reps, mode='lines+markers', name='', hoverinfo='x+y', hovertemplate='%{x}<br>%{y} reps'))
-    fig_reps.update_layout(title={'text': f'Progression in reps for {exercise['name']}', 'x': 0.5}, xaxis_title='Date & Time', yaxis_title='Reps')
+    fig_reps.update_layout(title={'text': f'Progression in reps for {exercise["name"]}', 'x': 0.5}, xaxis_title='Date & Time', yaxis_title='Reps')
 
     graph_weights_html = pio.to_html(fig_weights, full_html=False, config={'responsive': True, 'scrollZoom': True, 'displayModeBar': False})
     graph_reps_html = pio.to_html(fig_reps, full_html=False, config={'responsive': True, 'scrollZoom': True, 'displayModeBar': False})
