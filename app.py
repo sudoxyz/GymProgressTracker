@@ -294,16 +294,16 @@ def exercise_graph(exercise_id):
     conn.close()
 
     dates = [datetime.datetime.strptime(workout['date'], "%Y-%m-%d %H:%M:%S") for workout in workouts]
-    weights = [workout['weight'] for workout in workouts]
+    weights = [round(workout['weight'], 2) for workout in workouts]
     reps = [workout['reps'] for workout in workouts]
 
     fig_weights = Figure()
-    fig_weights.add_trace(Scatter(x=dates, y=weights, mode='lines+markers', name='Weight (kg)', hoverinfo='x+y'))
-    fig_weights.update_layout(title=f"Progression in weight used for {exercise['name']}", xaxis_title='Date', yaxis_title='Weight (kg)')
+    fig_weights.add_trace(Scatter(x=dates, y=weights, mode='lines+markers', name='', hoverinfo='x+y', hovertemplate='%{x}<br>%{y} kg'))
+    fig_weights.update_layout(title={'text': f'Progression in weight used for {exercise['name']}', 'x': 0.5}, xaxis_title='Date & Time', yaxis_title='Weight (kg)')
 
     fig_reps = Figure()
-    fig_reps.add_trace(Scatter(x=dates, y=reps, mode='lines+markers', name='Reps', hoverinfo='x+y'))
-    fig_reps.update_layout(title=f"Progression in reps for {exercise['name']}", xaxis_title='Date', yaxis_title='Reps')
+    fig_reps.add_trace(Scatter(x=dates, y=reps, mode='lines+markers', name='', hoverinfo='x+y', hovertemplate='%{x}<br>%{y} reps'))
+    fig_reps.update_layout(title={'text': f'Progression in reps for {exercise['name']}', 'x': 0.5}, xaxis_title='Date & Time', yaxis_title='Reps')
 
     graph_weights_html = pio.to_html(fig_weights, full_html=False, config={'responsive': True, 'scrollZoom': True, 'displayModeBar': False})
     graph_reps_html = pio.to_html(fig_reps, full_html=False, config={'responsive': True, 'scrollZoom': True, 'displayModeBar': False})
@@ -323,11 +323,11 @@ def graph():
     heights = [entry['height'] for entry in body]
 
     fig_weight = Figure()
-    fig_weight.add_trace(Scatter(x=dates, y=weights, mode='lines+markers', name='Weight (kg)', hoverinfo='x+y'))
-    fig_weight.update_layout(title={'text': f'Weight Progression', 'x': 0.5}, xaxis_title='Date', yaxis_title='Weight (kg)', dragmode='pan')
+    fig_weight.add_trace(Scatter(x=dates, y=weights, mode='lines+markers', name='', hoverinfo='x+y', hovertemplate='%{x}<br>%{y} kg'))
+    fig_weight.update_layout(title={'text': f'Weight Progression', 'x': 0.5}, xaxis_title='Date & Time', yaxis_title='Weight (kg)', dragmode='pan')
     fig_height = Figure()
-    fig_height.add_trace(Scatter(x=dates, y=heights, mode='lines+markers', name='Height (cm)', hoverinfo='x+y', ))
-    fig_height.update_layout(title={'text': f'Height Progression', 'x': 0.5}, xaxis_title='Date', yaxis_title='Height (cm)', dragmode='pan')
+    fig_height.add_trace(Scatter(x=dates, y=heights, mode='lines+markers', name='', hoverinfo='x+y', hovertemplate='%{x}<br>%{y} cm'))
+    fig_height.update_layout(title={'text': f'Height Progression', 'x': 0.5}, xaxis_title='Date & Time', yaxis_title='Height (cm)', dragmode='pan')
 
     graph_weight_html = pio.to_html(fig_weight, full_html=False, config={'responsive': True, 'scrollZoom': True, 'displayModeBar': False})
     graph_height_html = pio.to_html(fig_height, full_html=False, config={'responsive': True, 'scrollZoom': True, 'displayModeBar': False})
