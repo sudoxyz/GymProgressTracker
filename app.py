@@ -305,8 +305,8 @@ def exercise_graph(exercise_id):
     fig_reps.add_trace(Scatter(x=dates, y=reps, mode='lines+markers', name='Reps', hoverinfo='x+y'))
     fig_reps.update_layout(title=f"Progression in reps for {exercise['name']}", xaxis_title='Date', yaxis_title='Reps')
 
-    graph_weights_html = pio.to_html(fig_weights, full_html=False, config={'displayModeBar': False})
-    graph_reps_html = pio.to_html(fig_reps, full_html=False, config={'displayModeBar': False})
+    graph_weights_html = pio.to_html(fig_weights, full_html=False, config={'responsive': True, 'scrollZoom': True, 'displayModeBar': False})
+    graph_reps_html = pio.to_html(fig_reps, full_html=False, config={'responsive': True, 'scrollZoom': True, 'displayModeBar': False})
 
     return render_template('exercise_graph.html', exercise=exercise, graph_weights_html=graph_weights_html, graph_reps_html=graph_reps_html)
 
@@ -324,14 +324,13 @@ def graph():
 
     fig_weight = Figure()
     fig_weight.add_trace(Scatter(x=dates, y=weights, mode='lines+markers', name='Weight (kg)', hoverinfo='x+y'))
-    fig_weight.update_layout(title='Weight Progression', xaxis_title='Date', yaxis_title='Weight (kg)')
-
+    fig_weight.update_layout(title={'text': f'Weight Progression', 'x': 0.5}, xaxis_title='Date', yaxis_title='Weight (kg)', dragmode='pan')
     fig_height = Figure()
     fig_height.add_trace(Scatter(x=dates, y=heights, mode='lines+markers', name='Height (cm)', hoverinfo='x+y', ))
-    fig_height.update_layout(title='Height Progression', xaxis_title='Date', yaxis_title='Height (cm)')
+    fig_height.update_layout(title={'text': f'Height Progression', 'x': 0.5}, xaxis_title='Date', yaxis_title='Height (cm)', dragmode='pan')
 
-    graph_weight_html = pio.to_html(fig_weight, full_html=False, config={'displayModeBar': False})
-    graph_height_html = pio.to_html(fig_height, full_html=False, config={'displayModeBar': False})
+    graph_weight_html = pio.to_html(fig_weight, full_html=False, config={'responsive': True, 'scrollZoom': True, 'displayModeBar': False})
+    graph_height_html = pio.to_html(fig_height, full_html=False, config={'responsive': True, 'scrollZoom': True, 'displayModeBar': False})
 
     return render_template('graph.html', graph_weight_html=graph_weight_html, graph_height_html=graph_height_html)
 
@@ -394,5 +393,5 @@ def logout():
 
 if __name__ == "__main__":
     init_db()  
-    app.run(debug=True)
+    app.run(debug=True, host='0.0.0.0', port=5000)
     # serve(app, host='0.0.0.0', port=5000)
