@@ -1,6 +1,6 @@
 # Workout Progress Tracker
 
-A web-based application to track workouts, exercises, and body statistics. Built with Python, Flask, and SQLite, featuring data visualization with Matplotlib.
+A web-based application to track workouts, exercises, and body statistics. Built with Python, Flask, and SQLite, featuring data visualization with Plotly.
 
 ## Installation
 

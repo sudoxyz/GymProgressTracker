@@ -12,11 +12,11 @@
     <h1 class="text-center">{{ exercise.name }} Progression</h1>
 
     <div class="text-center">
-        <img src="data:image/png;base64,{{ img_weights_b64 }}" alt="{{ exercise.name }} Graph" class="img-fluid">
+        {{ graph_weights_html|safe }}
     </div>
 
     <div class="text-center">
-        <img src="data:image/png;base64,{{ img_reps_b64 }}" alt="{{ exercise.name }} Graph" class="img-fluid">
+        {{ graph_reps_html|safe }}
     </div>
 
     <div class="text-center mt-4">

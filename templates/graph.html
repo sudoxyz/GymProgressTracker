@@ -12,11 +12,11 @@
     <h1 class="text-center">Weight and Height Progression</h1>
 
     <div class="text-center">
-        <img src="data:image/png;base64,{{ img_weight_b64 }}" alt="Graph" class="img-fluid">
+        {{ graph_weight_html|safe }}
     </div>
 
     <div class="text-center">
-        <img src="data:image/png;base64,{{ img_height_b64 }}" alt="Graph" class="img-fluid">
+        {{ graph_height_html|safe }}
     </div>
 
     <div class="text-center mt-4">

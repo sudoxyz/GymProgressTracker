@@ -2,13 +2,12 @@ import sqlite3
 from flask import Flask, render_template, request, redirect, url_for
 from flask_login import LoginManager, UserMixin, login_user, login_required, logout_user, current_user
 from werkzeug.security import generate_password_hash, check_password_hash
-import matplotlib.pyplot as plt
-from io import BytesIO
-import base64
+import datetime
 import dotenv
 import os
-import datetime
 from waitress import serve
+from plotly.graph_objects import Scatter, Figure
+import plotly.io as pio
 
 dotenv.load_dotenv()
 
@@ -280,13 +279,12 @@ def exercise_graph(exercise_id):
     conn = get_db_connection()
 
     if not exercise_id:
-        return redirect(url_for('index', error="Invalid exercise ID."))
+        return redirect(url_for('index', error='Invalid exercise ID'))
 
     exercise = conn.execute('SELECT * FROM exercises WHERE id = ? AND user_id = ?', (exercise_id, current_user.id)).fetchone()
 
     if not exercise:
-        conn.close()
-        return redirect(url_for('index'))
+        return redirect(url_for('index', error='Exercise not found'))
 
     workouts = conn.execute('''
         SELECT * FROM workouts WHERE exercise_id = ? AND user_id = ?
@@ -295,39 +293,22 @@ def exercise_graph(exercise_id):
 
     conn.close()
 
-    dates = [workout['date'] for workout in workouts]
+    dates = [datetime.datetime.strptime(workout['date'], "%Y-%m-%d %H:%M:%S") for workout in workouts]
     weights = [workout['weight'] for workout in workouts]
     reps = [workout['reps'] for workout in workouts]
 
-    fig_weights, ax_weights = plt.subplots()
-    plt.subplots()
-    ax_weights.plot(dates, weights, label="Weight Used (kg)", color='g', marker='o', markersize=3)
-    ax_weights.set_title(f"Progression in weight used for {exercise['name']}")
-    ax_weights.set_xlabel("Date")
-    ax_weights.invert_xaxis()
-    ax_weights.set_ylabel("Weight")
-    ax_weights.legend()
+    fig_weights = Figure()
+    fig_weights.add_trace(Scatter(x=dates, y=weights, mode='lines+markers', name='Weight (kg)', hoverinfo='x+y'))
+    fig_weights.update_layout(title=f"Progression in weight used for {exercise['name']}", xaxis_title='Date', yaxis_title='Weight (kg)')
 
-    img_weights = BytesIO()
-    fig_weights.savefig(img_weights, format='png')
-    img_weights.seek(0)
-    img_weights_b64 = base64.b64encode(img_weights.getvalue()).decode('utf-8')
+    fig_reps = Figure()
+    fig_reps.add_trace(Scatter(x=dates, y=reps, mode='lines+markers', name='Reps', hoverinfo='x+y'))
+    fig_reps.update_layout(title=f"Progression in reps for {exercise['name']}", xaxis_title='Date', yaxis_title='Reps')
 
-    fig_reps, ax_reps = plt.subplots()
-    plt.subplots()
-    ax_reps.plot(dates, reps, label="Reps", color='b', marker='o', markersize=3)
-    ax_reps.set_title(f"Progression in reps for {exercise['name']}")
-    ax_reps.set_xlabel("Date")
-    ax_reps.invert_xaxis()
-    ax_reps.set_ylabel("Reps")
-    ax_reps.legend()
+    graph_weights_html = pio.to_html(fig_weights, full_html=False, config={'displayModeBar': False})
+    graph_reps_html = pio.to_html(fig_reps, full_html=False, config={'displayModeBar': False})
 
-    img_reps = BytesIO()
-    fig_reps.savefig(img_reps, format='png')
-    img_reps.seek(0)
-    img_reps_b64 = base64.b64encode(img_reps.getvalue()).decode('utf-8')
-
-    return render_template('exercise_graph.html', img_weights_b64=img_weights_b64, img_reps_b64=img_reps_b64, exercise=exercise)
+    return render_template('exercise_graph.html', exercise=exercise, graph_weights_html=graph_weights_html, graph_reps_html=graph_reps_html)
 
 @app.route('/graph')
 @login_required
@@ -335,41 +316,24 @@ def graph():
     conn = get_db_connection()
 
     body = conn.execute('SELECT * FROM body WHERE user_id = ? ORDER BY date DESC', (current_user.id,)).fetchall()
-
     conn.close()
 
-    dates = [stats['date'] for stats in body]
-    weights = [stats['weight'] for stats in body]
-    heights = [stats['height'] for stats in body]
+    dates = [datetime.datetime.strptime(entry['date'], "%Y-%m-%d %H:%M:%S") for entry in body]
+    weights = [entry['weight'] for entry in body]
+    heights = [entry['height'] for entry in body]
 
-    fig_weight, ax_weight = plt.subplots()
-    ax_weight.plot(dates, weights, label="Weight (kg)", color='b')
-    ax_weight.set_title("Weight Progression")
-    ax_weight.set_xlabel("Date")
-    ax_weight.invert_xaxis()
-    ax_weight.set_ylabel("Weight (kg)")
-    ax_weight.legend()
+    fig_weight = Figure()
+    fig_weight.add_trace(Scatter(x=dates, y=weights, mode='lines+markers', name='Weight (kg)', hoverinfo='x+y'))
+    fig_weight.update_layout(title='Weight Progression', xaxis_title='Date', yaxis_title='Weight (kg)')
 
-    img_weight = BytesIO()
-    fig_weight.savefig(img_weight, format='png')
-    img_weight.seek(0)
-    img_weight_b64 = base64.b64encode(img_weight.getvalue()).decode('utf-8')
+    fig_height = Figure()
+    fig_height.add_trace(Scatter(x=dates, y=heights, mode='lines+markers', name='Height (cm)', hoverinfo='x+y', ))
+    fig_height.update_layout(title='Height Progression', xaxis_title='Date', yaxis_title='Height (cm)')
 
+    graph_weight_html = pio.to_html(fig_weight, full_html=False, config={'displayModeBar': False})
+    graph_height_html = pio.to_html(fig_height, full_html=False, config={'displayModeBar': False})
 
-    fig_height, ax_height = plt.subplots()
-    ax_height.plot(dates, heights, label="Height (cm)", color='g')
-    ax_height.set_title("Height Progression")
-    ax_height.set_xlabel("Date")
-    ax_height.invert_xaxis()
-    ax_height.set_ylabel("Height (cm)")
-    ax_height.legend()
-
-    img_height = BytesIO()
-    fig_height.savefig(img_weight, format='png')
-    img_height.seek(0)
-    img_height_b64 = base64.b64encode(img_weight.getvalue()).decode('utf-8')
-
-    return render_template('graph.html', img_weight_b64=img_weight_b64, img_height_b64=img_height_b64)
+    return render_template('graph.html', graph_weight_html=graph_weight_html, graph_height_html=graph_height_html)
 
 @app.route('/login', methods=['GET', 'POST'])
 def login():

@@ -1,5 +1,5 @@
 flask 
-matplotlib
+plotly
 flask-login
 dotenv
 waitress
