@@ -10,7 +10,6 @@
 
 <div class="container my-5">
     <h1 class="text-center">Register</h1>
-
     <div class="row justify-content-center mt-4">
         <div class="col-md-6">
             {% with messages = get_flashed_messages(with_categories=true) %}
@@ -21,6 +20,10 @@
                       <div class="alert alert-danger" role="alert">{{ message }}</div>
                     {% elif category == 'success' %}
                       <div class="alert alert-success" role="alert">{{ message }}</div>
+                    {% elif category == 'info' %}
+                      <div class="alert alert-info" role="alert">{{ message }}</div>
+                    {% elif category == 'warning' %}
+                      <div class="alert alert-warning" role="alert">{{ message }}</div>
                     {% endif %}
                   {% endfor %}
                 </div>
