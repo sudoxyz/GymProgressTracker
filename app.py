@@ -199,9 +199,9 @@ def delete_exercise(exercise_id):
         flash("Invalid exercise ID.", "error")
         return redirect(url_for('index'))
         
-    conn.execute('DELETE FROM exercises WHERE id = ? AND user_id = ?', (exercise_id, current_user.id))
     conn.execute('DELETE FROM workouts WHERE exercise_id = ? AND user_id = ?', (exercise_id, current_user.id))
-
+    conn.execute('DELETE FROM exercises WHERE id = ? AND user_id = ?', (exercise_id, current_user.id))
+    
     conn.commit()
     conn.close()
     return redirect(url_for('index'))
