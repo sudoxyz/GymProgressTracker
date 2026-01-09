@@ -177,11 +177,11 @@
                             <form action="/edit_workout/{{ workout.id }}" method="POST">
                                 <div class="modal-body">
                                     <div class="form-group">
-                                        <label for="weight">Weight:</label>
+                                        <label for="weight{{ workout.id }}">Weight:</label>
                                         <div class="input-group">
-                                            <input type="number" class="form-control mr-1" id="weight" name="weight" step="0.01" value="{{ workout.weight }}" required>
+                                            <input type="number" class="form-control mr-1 edit-workout-weight" id="weight{{ workout.id }}" name="weight" step="0.01" value="{{ workout.weight }}" data-original-kg="{{ workout.weight }}" required>
                                             <div class="input-group-appendml-1">
-                                                <select class="form-control" id="weight_unit" name="weight_unit" required>
+                                                <select class="form-control edit-workout-unit" id="weight_unit{{ workout.id }}" name="weight_unit" required>
                                                     <option value="kg">kg</option>
                                                     <option value="lb">lb</option>
                                                 </select>
@@ -189,8 +189,8 @@
                                         </div>
                                     </div>
                                     <div class="form-group">
-                                        <label for="reps">Reps</label>
-                                        <input type="number" class="form-control" name="reps" value="{{ workout.reps }}" required>
+                                        <label for="reps{{ workout.id }}">Reps</label>
+                                        <input type="number" class="form-control" id="reps{{ workout.id }}" name="reps" value="{{ workout.reps }}" required>
                                     </div>
                                 </div>
                                 <div class="modal-footer">
@@ -285,6 +285,44 @@
 </div>
 
 <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
+<script>
+$(document).ready(function() {
+    $('.edit-workout-unit').each(function() {
+        $(this).data('previous', $(this).val());
+    });
+
+    $('.modal[id^="editWorkoutModal"]').on('change', '.edit-workout-unit', function() {
+        var modal = $(this).closest('.modal');
+        var weightInput = modal.find('.edit-workout-weight');
+        var currentWeight = parseFloat(weightInput.val());
+        
+        var previousUnit = $(this).data('previous');
+        var newUnit = $(this).val();
+
+        if (!isNaN(currentWeight)) {
+            if (previousUnit === 'kg' && newUnit === 'lb') {
+                weightInput.val((currentWeight * 2.20462).toFixed(2));
+            } else if (previousUnit === 'lb' && newUnit === 'kg') {
+                weightInput.val((currentWeight / 2.20462).toFixed(2));
+            }
+        }
+        
+        $(this).data('previous', newUnit);
+    });
+
+    $('.modal[id^="editWorkoutModal"]').on('hidden.bs.modal', function () {
+        var weightInput = $(this).find('.edit-workout-weight');
+        var unitSelect = $(this).find('.edit-workout-unit');
+        var originalKg = parseFloat(weightInput.data('original-kg'));
+
+        if (!isNaN(originalKg)) {
+            weightInput.val(originalKg.toFixed(2));
+        }
+        unitSelect.val('kg');
+        unitSelect.data('previous', 'kg');
+    });
+});
+</script>
 <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.9.3/dist/umd/popper.min.js"></script>
 <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
 
