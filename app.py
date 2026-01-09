@@ -226,18 +226,15 @@ def edit_exercise(exercise_id):
 @login_required
 def add_workout():
     exercise_id = request.form['exercise_id']
-    weight_kg = request.form.get('weight_kg', type=float)
-    weight_lb = request.form.get('weight_lb', type=float)
+    weight = request.form.get('weight', type=float)
+    weight_unit = request.form.get('weight_unit')
 
-    if not weight_kg and not weight_lb:
-        flash("Please enter weight in either kg or lbs.", "error")
+    if not weight:
+        flash("Please enter weight.", "error")
         return redirect(url_for('index'))
 
-    if weight_lb:
-        weight = weight_lb * 0.453592
-
-    elif weight_kg:
-        weight = weight_kg
+    if weight_unit == 'lb':
+        weight = weight * 0.453592
 
     reps = request.form['reps']
 
@@ -253,12 +250,16 @@ def add_workout():
 @login_required
 def edit_workout(workout_id):
     conn = get_db_connection()
-    weight = request.form['weight']
+    weight = request.form.get('weight', type=float)
+    weight_unit = request.form.get('weight_unit')
     reps = request.form['reps']
 
-    if not weight and not reps:
-        flash("Weight and reps cannot be empty.", "error")
+    if not weight:
+        flash("Weight cannot be empty.", "error")
         return redirect(url_for('index'))
+
+    if weight_unit == 'lb':
+        weight = weight * 0.453592 
 
     conn.execute('UPDATE workouts SET weight = ?, reps = ? WHERE id = ? AND user_id = ?', 
                  (weight, reps, workout_id, current_user.id))

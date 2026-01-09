@@ -40,8 +40,16 @@
                     <input type="number" class="form-control" id="height" name="height">
                 </div>
                 <div class="form-group">
-                    <label for="weight_kg">Weight (kg):</label>
-                    <input type="number" class="form-control" id="weight_kg" name="weight" step="0.01" >
+                    <label for="weight">Weight:</label>
+                    <div class="input-group">
+                        <input type="number" class="form-control" id="weight" name="weight" step="0.01" required>
+                        <div class="input-group-append">
+                            <select class="form-control" id="weight_unit" name="weight_unit" required>
+                                <option value="kg">kg</option>
+                                <option value="lb">lb</option>
+                            </select>
+                        </div>
+                    </div>
                 </div>
                 <div class="form-group row justify-content-center">
                     <button type="submit" class="btn btn-success col-md-5 mt-2 ml-2 mr-2">Add Log</button>
@@ -67,12 +75,16 @@
                     </select>
                 </div>
                 <div class="form-group">
-                    <label for="weight">Weight (kg):</label>
-                    <input type="number" class="form-control" id="weight_kg" name="weight_kg" step="0.01">
-                </div>
-                <div>
-                    <label for="weight">Weight (lb)</label>
-                    <input type="number" class="form-control" id="weight_lb" name="weight_lb" step="0.01">
+                    <label for="weight">Weight:</label>
+                    <div class="input-group">
+                        <input type="number" class="form-control mr-1" id="weight" name="weight" step="0.01" required>
+                        <div class="input-group-appendml-1">
+                            <select class="form-control" id="weight_unit" name="weight_unit" required>
+                                <option value="kg">kg</option>
+                                <option value="lb">lb</option>
+                            </select>
+                        </div>
+                    </div>
                 </div>
                 <div class="form-group">
                     <label for="reps">Reps:</label>
@@ -165,8 +177,16 @@
                             <form action="/edit_workout/{{ workout.id }}" method="POST">
                                 <div class="modal-body">
                                     <div class="form-group">
-                                        <label for="weight">Weight (kg)</label>
-                                        <input type="number" class="form-control" name="weight" value="{{ workout.weight }}" step="0.01" required>
+                                        <label for="weight">Weight:</label>
+                                        <div class="input-group">
+                                            <input type="number" class="form-control mr-1" id="weight" name="weight" step="0.01" value="{{ workout.weight }}" required>
+                                            <div class="input-group-appendml-1">
+                                                <select class="form-control" id="weight_unit" name="weight_unit" required>
+                                                    <option value="kg">kg</option>
+                                                    <option value="lb">lb</option>
+                                                </select>
+                                            </div>
+                                        </div>
                                     </div>
                                     <div class="form-group">
                                         <label for="reps">Reps</label>
