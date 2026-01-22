@@ -95,13 +95,18 @@ def init_vars():
 
     conn.close()
 
-    return body, workouts, exercises, exercise_map
+    latest_weights = {}
+    for workout in workouts:
+        if workout['exercise_id'] not in latest_weights:
+            latest_weights[workout['exercise_id']] = workout['weight'], workout['reps']
+
+    return body, workouts, exercises, exercise_map, latest_weights
 
 @app.route('/')
 @login_required
 def index():
-    body, workouts, exercises, exercise_map = init_vars()
-    return render_template('index.html', body=body, workouts=workouts, exercises=exercises, exercise_map=exercise_map)
+    body, workouts, exercises, exercise_map, latest_weights = init_vars()
+    return render_template('index.html', body=body, workouts=workouts, exercises=exercises, exercise_map=exercise_map, latest_weights=latest_weights)
 
 @app.route('/add_body', methods=['POST'])
 @login_required
