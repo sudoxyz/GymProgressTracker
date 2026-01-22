@@ -119,7 +119,7 @@
     <ul class="list-group" style="max-height: 500px; overflow-y: auto;">
         {% for stats in body %}
             <li class="list-group-item">
-                <div class="row align-items-center"></div>
+                <div class="row align-items-center">
                     <div class="col-md-8 col-12">
                         <strong>{{ stats.date }}</strong>: Height: {{ stats.height }} cm, Weight: {{ stats.weight|round(2) }} kg
                     </div>
