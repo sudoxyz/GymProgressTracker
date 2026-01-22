@@ -7,7 +7,7 @@ import sys
 
 from waitress import serve
 from plotly.graph_objects import Scatter, Figure
-from flask import Flask, render_template, request, redirect, url_for, flash
+from flask import Flask, render_template, request, redirect, url_for, flash, session
 from flask_login import LoginManager, UserMixin, login_user, login_required, logout_user, current_user
 from werkzeug.security import generate_password_hash, check_password_hash
 
@@ -80,6 +80,11 @@ class User(UserMixin):
         if not user:
             return None
         return User(user['id'], user['username'], user['password'])
+
+@app.before_request
+def before_request():
+    session.permanent = True
+    app.permanent_session_lifetime = datetime.timedelta(hours=24)
 
 @login_manager.user_loader
 def load_user(user_id):
