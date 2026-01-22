@@ -119,9 +119,15 @@
     <ul class="list-group" style="max-height: 500px; overflow-y: auto;">
         {% for stats in body %}
             <li class="list-group-item">
-                <strong>{{ stats.date }}</strong>: Height: {{ stats.height }} cm, Weight: {{ stats.weight|round(2) }} kg
-                <a href="/delete_body/{{ stats.id }}" class="btn btn-danger btn-sm float-right ml-2">Delete</a>
-                <button type="button" class="btn btn-warning btn-sm float-right ml-2" data-toggle="modal" data-target="#editBodyModal{{ stats.id }}">Edit</button>
+                <div class="row align-items-center"></div>
+                    <div class="col-md-8 col-12">
+                        <strong>{{ stats.date }}</strong>: Height: {{ stats.height }} cm, Weight: {{ stats.weight|round(2) }} kg
+                    </div>
+                    <div class="col-md-4 col-12 text-md-right mt-2 mt-md-0">
+                        <button type="button" class="btn btn-warning btn-sm" data-toggle="modal" data-target="#editBodyModal{{ stats.id }}">Edit</button>
+                        <a href="/delete_body/{{ stats.id }}" class="btn btn-danger btn-sm ml-2">Delete</a>
+                    </div>
+                </div>
 
                 <div class="modal fade" id="editBodyModal{{ stats.id }}" tabindex="-1" role="dialog" aria-labelledby="editBodyModalLabel{{ stats.id }}" aria-hidden="true">
                     <div class="modal-dialog" role="document">
@@ -161,9 +167,15 @@
     <ul class="list-group" style="max-height: 500px; overflow-y: auto;">
         {% for workout in workouts %}
             <li class="list-group-item">
-                <strong>{{ workout.date }}</strong>: {{ exercise_map[workout.exercise_id] }} - {{ workout.weight|round(2) }}kg x {{ workout.reps }}
-                <a href="/delete_workout/{{ workout.id }}" class="btn btn-danger btn-sm float-right ml-2">Delete</a>
-                <button type="button" class="btn btn-warning btn-sm float-right ml-2" data-toggle="modal" data-target="#editWorkoutModal{{ workout.id }}">Edit</button>
+                <div class="row align-items-center">
+                    <div class="col-md-8 col-12">
+                        <strong>{{ workout.date }}</strong>: {{ exercise_map[workout.exercise_id] }} - {{ workout.weight|round(2) }}kg x {{ workout.reps }}
+                    </div>
+                    <div class="col-md-4 col-12 text-md-right mt-2 mt-md-0">
+                        <button type="button" class="btn btn-warning btn-sm" data-toggle="modal" data-target="#editWorkoutModal{{ workout.id }}">Edit</button>
+                        <a href="/delete_workout/{{ workout.id }}" class="btn btn-danger btn-sm ml-2">Delete</a>
+                    </div>
+                </div>
 
                 <div class="modal fade" id="editWorkoutModal{{ workout.id }}" tabindex="-1" role="dialog" aria-labelledby="editWorkoutModalLabel{{ workout.id }}" aria-hidden="true">
                     <div class="modal-dialog" role="document">
@@ -211,13 +223,17 @@
     <ul class="list-group">
         {% for exercise in exercises | sort(attribute='name')%}
             <li class="list-group-item">
-                <a href="/exercise_graph/{{ exercise.id }}" class="btn btn-link">
-                    {{ exercise.name }} - {{ latest_weights.get(exercise.id, (0, 0))[0]|round(2) }}kg x {{ latest_weights.get(exercise.id, (0, 0))[1] }}
-                </a>
-                <a href="/delete_exercise/{{ exercise.id }}" class="btn btn-danger btn-sm float-right ml-2">Delete</a>
-                <button type="button" class="btn btn-warning btn-sm float-right" data-toggle="modal" data-target="#editExerciseModal{{ exercise.id }}">
-                    Edit
-                </button>
+                <div class="row align-items-center">
+                    <div class="col-md-8 col-12">
+                        <a href="/exercise_graph/{{ exercise.id }}" class="btn btn-link text-left pl-0 pb-0">
+                            {{ exercise.name }} - {{ latest_weights.get(exercise.id, (0, 0))[0]|round(2) }}kg x {{ latest_weights.get(exercise.id, (0, 0))[1] }}
+                        </a>
+                    </div>
+                    <div class="col-md-4 col-12 text-md-right mt-2 mt-md-0  ">
+                        <button type="button" class="btn btn-warning btn-sm" data-toggle="modal" data-target="#editExerciseModal{{ exercise.id }}">Edit</button>
+                        <a href="/delete_exercise/{{ exercise.id }}" class="btn btn-danger btn-sm ml-2">Delete</a>
+                    </div>
+                </div>
 
                 <div class="modal fade" id="editExerciseModal{{ exercise.id }}" tabindex="-1" role="dialog" aria-labelledby="editExerciseModalLabel{{ exercise.id }}" aria-hidden="true">
                     <div class="modal-dialog" role="document">
