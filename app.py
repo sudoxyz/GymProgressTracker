@@ -418,7 +418,7 @@ def logout():
 if __name__ == "__main__":
     init_db()  
     if sys.argv.__contains__('debug'):
-        app.run(debug=True, host='0.0.0.0', port=5000)
+        app.run(debug=True, host='0.0.0.0', port=2000)
     else:
-        serve(app, host='0.0.0.0', port=5000)
+        serve(app, host='0.0.0.0', port=2000)
 
